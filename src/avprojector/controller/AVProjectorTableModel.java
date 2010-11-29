@@ -17,7 +17,7 @@ import javax.swing.table.AbstractTableModel;
  */
 public class AVProjectorTableModel extends AbstractTableModel {
 
-    private String[] columnNames                            = { "Projectors", "Power", "Input" };
+    public static String[] columnNames                            = { "Projectors", "Power", "Input" };
     public static final String[] powerColumnValues          = { "Off", "On" };
     public static final String[] inputColumnValues          = { "Input A", "Video" };
     private ArrayList<AVProjector> projList;
