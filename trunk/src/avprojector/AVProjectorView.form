@@ -242,7 +242,10 @@
             <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
               <action class="avprojector.AVProjectorView" id="CheckAllStatus" methodName="CheckAllStatus"/>
             </Property>
+            <Property name="background" type="java.awt.Color" resourceKey="jButton1.background"/>
+            <Property name="foreground" type="java.awt.Color" resourceKey="jButton1.foreground"/>
             <Property name="text" type="java.lang.String" resourceKey="jButton1.text"/>
+            <Property name="contentAreaFilled" type="boolean" value="false"/>
             <Property name="name" type="java.lang.String" value="jButton1" noResource="true"/>
           </Properties>
         </Component>

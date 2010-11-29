@@ -24,6 +24,7 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumn;
 
@@ -202,7 +203,10 @@ public class AVProjectorView extends FrameView {
         progressBar.setName("progressBar"); // NOI18N
 
         jButton1.setAction(actionMap.get("CheckAllStatus")); // NOI18N
+        jButton1.setBackground(resourceMap.getColor("jButton1.background")); // NOI18N
+        jButton1.setForeground(resourceMap.getColor("jButton1.foreground")); // NOI18N
         jButton1.setText(resourceMap.getString("jButton1.text")); // NOI18N
+        jButton1.setContentAreaFilled(false);
         jButton1.setName("jButton1"); // NOI18N
 
         org.jdesktop.layout.GroupLayout mStatusPanelLayout = new org.jdesktop.layout.GroupLayout(mStatusPanel);
@@ -286,24 +290,11 @@ public class AVProjectorView extends FrameView {
 
         TableColumn powerColumn = mProjTable.getColumnModel().getColumn( 1 ); // power status
         TableColumn inputColumn = mProjTable.getColumnModel().getColumn( 2 ); // input status
+        powerColumn.setCellRenderer(new ButtonCellRenderer(mProjTable));
 
-        DefaultCellEditor powerEditor = new DefaultCellEditor(new JComboBox(AVProjectorTableModel.powerColumnValues));
         DefaultCellEditor inputEditor = new DefaultCellEditor(new JComboBox(AVProjectorTableModel.inputColumnValues));
 
-        powerColumn.setCellEditor( powerEditor );
-        inputColumn.setCellEditor( inputEditor );
-
-
-        //DefaultCellEditor headerEditor = new DefaultCellEditor(new ProjectorRowHeaderPanel());
-        //mProjTable.setDefaultRenderer(ProjectorRowHeaderPanel.class, new ProjectorRowHeaderRenderer());
-        //mProjTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-        //mProjTable.setRowHeight(60);
-        //mProjTable.getColumnModel().getColumn(0).setPreferredWidth(220);
-        //mProjTable.getColumnModel().getColumn(0).setResizable(false);
-        
-
-        //JTable table = new JTable(20, 10);
-        
+        inputColumn.setCellEditor( inputEditor ); 
 
     }
 
@@ -312,15 +303,6 @@ public class AVProjectorView extends FrameView {
     {
         AVProjectorController.CheckAllStatus();
 
-        
-        /*
-        mProjTable.getColumnModel().getColumn(0).setPreferredWidth(50);
-        mProjTable.getColumnModel().getColumn(1).setPreferredWidth(100);
-        JScrollPane scrollPane= new JScrollPane( mProjTable );
-        FixedColumnTable fct = new FixedColumnTable(2, scrollPane);
-        mProjTable = fct.getFixedTable();
-         *
-         */
     }
 
 

@@ -17,6 +17,7 @@ import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultCellEditor;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JTable;
 import pjLink.PJLinkC1;
@@ -30,7 +31,7 @@ public class AVProjectorController {
     private static Semaphore                sProjTableModelMutex;
     public static ArrayList<AVProjector>    sProjList;
     public static String                    sFilepath = "/Users/Long/Desktop/projList.txt";
-    public static int                       sColumnCount = 4;
+    public static int                       sColumnCount = AVProjectorTableModel.columnNames.length;
     public static AVProjectorTableModel     sProjTableModel;
 
     public static void Initialize()
@@ -70,7 +71,6 @@ public class AVProjectorController {
             data[i][0] = sProjList.get(i).GetProjName();
             data[i][1] = "Unknown";
             data[i][2] = "Unknown";
-
         }
 
         return data;
