@@ -5,6 +5,7 @@
 
 package avprojector;
 
+import avprojector.controller.AVProjectorController;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
@@ -43,10 +44,16 @@ class ButtonCellRenderer extends AbstractCellEditor implements
         });
         table.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
-                int column = table.getColumnModel().getColumnIndexAtX(e.getX());
-                int row    = e.getY()/table.getRowHeight();
-
-                System.out.println("Testing at: col: " + column + " row: " + row);
+                if(e.getClickCount() == 2)
+                {
+                    int column = table.getColumnModel().getColumnIndexAtX(e.getX());
+                    int row    = e.getY()/table.getRowHeight();
+                    if( column == 1 )
+                    {
+                        System.out.println("row" + row + "column" + column);
+                        AVProjectorController.TurnOnOff(row, column);
+                    }
+                }
             }
         });
     }
@@ -90,7 +97,7 @@ class ButtonCellRenderer extends AbstractCellEditor implements
         else
         {
             button.setForeground(Color.BLACK);
-            button.setBackground(Color.DARK_GRAY);
+            button.setBackground(Color.LIGHT_GRAY);
             button.setContentAreaFilled(true);
             button.setBorderPainted(false);
         }

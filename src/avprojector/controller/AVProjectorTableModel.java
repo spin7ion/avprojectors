@@ -65,28 +65,25 @@ public class AVProjectorTableModel extends AbstractTableModel {
     @Override
     public boolean isCellEditable( int row, int col )
     {
-        // can check the selection boxes in the first column
-        if( col < 1 )
+        /*
+        // cannot change the name of the projector
+        if( col == 1 )
+        {
+            return false;
+        }
+        */
+        if( col == 2 && getValueAt( row, col ).toString().compareToIgnoreCase("Projector not on") != 0)
         {
             return true;
         }
-
-        // cannot change the name of the projector
-        else if( col == 1 )
-        {
-            return false;
-        }
-
-        else if( getValueAt( row, col ).toString().compareToIgnoreCase("Projector not on") == 0)
-        {
-            return false;
-        }
-
+        /*
         // can change the values of the power and input columns
         else
         {
             return true;
         }
+         * */
+        return false;
     }
 
     @Override

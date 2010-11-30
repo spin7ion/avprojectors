@@ -35,14 +35,14 @@ public class AVProjector
     private String mHostName;
     private String mProjName;
 
-    protected enum PowerState{
+    public static enum PowerState{
             on,
             off,
             cooling, 
             warmup,
             undefined
     }
-    protected enum InputState{
+    public static enum InputState{
             input1,
             input2,
             input3,
@@ -201,12 +201,30 @@ public class AVProjector
 
     public void CheckPower( int row, int column )
     {
-        PJLinkC1.CheckPower(mIPAddress, pjLinkPort, defaultPJLinkPW, row, column );
+        PJLinkC1.CheckPower(this, mIPAddress, pjLinkPort, defaultPJLinkPW, row, column );
     }
 
     public void CheckInput( int row, int column )
     {
-        PJLinkC1.CheckInput(mIPAddress, pjLinkPort, defaultPJLinkPW, row, column );
+        PJLinkC1.CheckInput(this, mIPAddress, pjLinkPort, defaultPJLinkPW, row, column );
+    }
+
+    public void TurnOnOff( int row, int column )
+    {
+        System.out.println("turnonoff" + mProjName );
+        if(this.mPower == PowerState.on)
+        {
+            System.out.println("off");
+            PJLinkC1.TurnOff(this, mIPAddress, pjLinkPort, defaultPJLinkPW, row, column );
+            return;
+        }
+        else if( this.mPower == PowerState.off )
+        {
+            System.out.println("on");
+            PJLinkC1.TurnOn(this, mIPAddress, pjLinkPort, defaultPJLinkPW, row, column );
+            return;
+        }
+
     }
 
     public String CheckInput( )
@@ -318,6 +336,36 @@ public class AVProjector
     public void SetProjName( String projName )
     {
         mProjName = projName;
+    }
+
+    public void SetPowerState( PowerState state )
+    {
+        mPower = state;
+    }
+
+    public void SetPowerState( String state )
+    {
+        int iState = Integer.parseInt(state);
+
+        switch( iState )
+        {
+            case 0:
+                mPower = PowerState.off;
+                break;
+            case 1:
+                mPower = PowerState.on;
+                break;
+            case 2:
+                mPower = PowerState.cooling;
+                break;
+            case 3:
+                mPower = PowerState.warmup;
+                break;
+            default:
+                mPower = PowerState.undefined;
+                break;
+
+        }
     }
 
 
