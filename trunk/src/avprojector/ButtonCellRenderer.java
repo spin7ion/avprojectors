@@ -65,7 +65,17 @@ class ButtonCellRenderer extends AbstractCellEditor implements
         if (status.compareTo("On")== 0 )
         {
             button.setForeground(Color.BLACK);
-            button.setBackground(Color.GREEN);
+
+            if(isSelected)
+            {
+                //Spring green 0-255-127
+                button.setBackground(new Color( 0, 255, 127 ));
+            }
+            else
+            {
+                button.setBackground(Color.GREEN);
+            }
+
             button.setContentAreaFilled(true);
             button.setBorderPainted(false);
         }
@@ -73,7 +83,16 @@ class ButtonCellRenderer extends AbstractCellEditor implements
         else if(status.compareTo("Off")== 0 )
         {
             button.setForeground(Color.BLACK);
-            button.setBackground(Color.RED);
+            if(isSelected)
+            {
+                // Tomato 255-99-71
+                button.setBackground(new Color(255, 99, 71 ));
+            }
+            else
+            {
+                button.setBackground(Color.RED);
+            }
+            
             button.setContentAreaFilled(true);
             button.setBorderPainted(false);
         }
@@ -81,7 +100,15 @@ class ButtonCellRenderer extends AbstractCellEditor implements
         else if(status.compareTo("Cooling")== 0 )
         {
             button.setForeground(Color.BLACK);
-            button.setBackground(Color.BLUE);
+            if(isSelected)
+            {
+                //Light Sky Blue 135-206-250
+                button.setBackground(new Color(135, 206, 250));
+            }
+            else
+            {
+                button.setBackground(Color.BLUE);
+            }
             button.setContentAreaFilled(true);
             button.setBorderPainted(false);
         }
@@ -89,7 +116,17 @@ class ButtonCellRenderer extends AbstractCellEditor implements
         else if(status.compareTo("Warmup")== 0 )
         {
             button.setForeground(Color.BLACK);
-            button.setBackground(Color.ORANGE);
+                        if(isSelected)
+            {
+                // orange 255-165-0
+                button.setBackground(new Color(255, 165, 0));
+            }
+            else
+            {
+                // dark orange 255-140-0
+                button.setBackground(new Color(255, 140, 0));
+            }
+            
             button.setContentAreaFilled(true);
             button.setBorderPainted(false);
         }
