@@ -5,6 +5,7 @@
 
 package pjLink;
 
+import avprojector.model.AVProjector;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -42,6 +43,8 @@ public class PJLinkC1 {
     protected static final String POWER             = "POWR";
     protected static final String INPUT             = "INPT";
 
+    protected static final int WAIT_TIME           = 1500;
+
     static HashMap PowerStatus;
     static HashMap PowerCommands;
     static HashMap PowerErrorCodes;
@@ -70,6 +73,7 @@ public class PJLinkC1 {
         PowerCommands.put( "Status", "?");
 
         PowerErrorCodes = new HashMap();
+        PowerErrorCodes.put( "OK"  , "OK");
         PowerErrorCodes.put( "ERR2", "Parameter out of range");
         PowerErrorCodes.put( "ERR3", "Projector not on");
         PowerErrorCodes.put( "ERR4", "Projector error");
@@ -124,27 +128,74 @@ public class PJLinkC1 {
 
     }
 
-    public static void CheckPower( InetAddress projIP, int pjLinkPort, String password, int row, int column )
+    public static void CheckPower( AVProjector proj, InetAddress projIP, int pjLinkPort, String password, int row, int column )
     {
 
         String query = CreateQuery( CLASS_NUMBER, POWER, (String)PowerCommands.get("Status") );
 
         //connect to the server
 
-        PJLinkQueryThread pjQuery = new PJLinkQueryThread( CommandType.Power, query, password, projIP, pjLinkPort, row, column );
+        PJLinkQueryThread pjQuery = new PJLinkQueryThread( proj, CommandType.Power, query, password, projIP, pjLinkPort, row, column, 0 );
         pjQuery.start();
 
         return;
     }
 
-    public static void CheckInput( InetAddress projIP, int pjLinkPort, String password, int row, int column )
+    public static void CheckPower( AVProjector proj, InetAddress projIP, int pjLinkPort, String password, int row, int column, int waitTime )
+    {
+
+        String query = CreateQuery( CLASS_NUMBER, POWER, (String)PowerCommands.get("Status") );
+
+        //connect to the server
+
+        PJLinkQueryThread pjQuery = new PJLinkQueryThread( proj, CommandType.Power, query, password, projIP, pjLinkPort, row, column, waitTime );
+        pjQuery.start();
+
+        return;
+    }
+
+    public static void CheckInput( AVProjector proj, InetAddress projIP, int pjLinkPort, String password, int row, int column )
     {
         String query = CreateQuery( CLASS_NUMBER, INPUT, (String)InputCommands.get("Status") );
 
         //connect to the server
 
-        PJLinkQueryThread pjQuery = new PJLinkQueryThread( CommandType.Input, query, password, projIP, pjLinkPort, row, column );
+        PJLinkQueryThread pjQuery = new PJLinkQueryThread( proj, CommandType.Input, query, password, projIP, pjLinkPort, row, column, 0 );
         pjQuery.start();
+
+        return;
+    }
+
+    public static void CheckInput( AVProjector proj, InetAddress projIP, int pjLinkPort, String password, int row, int column, int waitTime )
+    {
+        String query = CreateQuery( CLASS_NUMBER, INPUT, (String)InputCommands.get("Status") );
+
+        //connect to the server
+
+        PJLinkQueryThread pjQuery = new PJLinkQueryThread( proj, CommandType.Input, query, password, projIP, pjLinkPort, row, column, waitTime );
+        pjQuery.start();
+
+        return;
+    }
+
+    public static void TurnOn( AVProjector proj, InetAddress projIP, int pjLinkPort, String password, int row, int column )
+    {
+        System.out.println("Turning on. " + projIP);
+        String query = CreateQuery( CLASS_NUMBER, POWER, (String)PowerCommands.get("On"));
+        PJLinkQueryThread pjQuery = new PJLinkQueryThread( proj, CommandType.Input, query, password, projIP, pjLinkPort, row, column, 0 );
+        pjQuery.start();
+
+        CheckPower( proj, projIP, pjLinkPort, password, row, column, WAIT_TIME );
+        return;
+    }
+
+    public static void TurnOff( AVProjector proj, InetAddress projIP, int pjLinkPort, String password, int row, int column )
+    {
+        String query = CreateQuery( CLASS_NUMBER, POWER, (String)PowerCommands.get("Off"));
+        PJLinkQueryThread pjQuery = new PJLinkQueryThread( proj, CommandType.Input, query, password, projIP, pjLinkPort, row, column, 0 );
+        pjQuery.start();
+
+        CheckPower( proj, projIP, pjLinkPort, password, row, column, WAIT_TIME );
 
         return;
     }

@@ -6,6 +6,7 @@
 package pjLink;
 
 import avprojector.controller.AVProjectorController;
+import avprojector.model.AVProjector;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -38,10 +39,13 @@ public class PJLinkQueryThread extends Thread
 
     int mRow;
     int mColumn;
+    int mWaitTime;
     
     InetAddress mProjIP;
 
-    public PJLinkQueryThread( PJLinkC1.CommandType commandType, String query, String password, InetAddress projIP, int port, int row, int column )
+    AVProjector mProj;
+
+    public PJLinkQueryThread( AVProjector proj, PJLinkC1.CommandType commandType, String query, String password, InetAddress projIP, int port, int row, int column, int waitTime )
     {
         mCommandType= commandType;
         mQuery      = query;
@@ -51,11 +55,26 @@ public class PJLinkQueryThread extends Thread
 
         mRow = row;
         mColumn = column;
+        mWaitTime = waitTime;
+
+        mProj = proj;
+
     }
 
     @Override
     public void run()
     {
+        if( mWaitTime != 0 )
+        {
+            try
+            {
+                this.sleep(mWaitTime);
+            }
+            catch( InterruptedException e )
+            {
+                System.out.println(e);
+            }
+        }
         Socket pjLinkSocket;
 
         //connect to the server
@@ -80,6 +99,7 @@ public class PJLinkQueryThread extends Thread
                 case Power:
                 {
                     mResponse = (String)PJLinkC1.PowerStatus.get(response);
+                    mProj.SetPowerState(response);
 
                     if( mResponse == null )
                     {

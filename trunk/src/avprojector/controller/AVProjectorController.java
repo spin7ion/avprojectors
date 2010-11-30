@@ -90,4 +90,11 @@ public class AVProjectorController {
 
     }
 
+    public static void TurnOnOff( int row, int column )
+    {
+        System.out.println("testing");
+        sProjList.get(row).TurnOnOff(row, column);
+        return;
+    }
+
 }
