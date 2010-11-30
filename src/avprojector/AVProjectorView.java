@@ -6,8 +6,6 @@ package avprojector;
 
 import avprojector.controller.AVProjectorTableModel;
 import avprojector.controller.AVProjectorController;
-import java.awt.BorderLayout;
-import java.awt.Button;
 import org.jdesktop.application.Action;
 import org.jdesktop.application.ResourceMap;
 import org.jdesktop.application.SingleFrameApplication;
@@ -18,14 +16,9 @@ import java.awt.event.ActionListener;
 import javax.swing.DefaultCellEditor;
 import javax.swing.Timer;
 import javax.swing.Icon;
-import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumn;
 
 /**
@@ -294,7 +287,9 @@ public class AVProjectorView extends FrameView {
 
         DefaultCellEditor inputEditor = new DefaultCellEditor(new JComboBox(AVProjectorTableModel.inputColumnValues));
 
-        inputColumn.setCellEditor( inputEditor ); 
+        inputColumn.setCellEditor( inputEditor );
+        mProjTable.setRowHeight(25);
+        //mProjTable.setRowMargin(10);
 
     }
 

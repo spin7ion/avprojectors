@@ -5,21 +5,15 @@
 
 package avprojector.controller;
 
-import avprojector.SpinnerEditor;
 import avprojector.model.AVProjectorParser;
 import avprojector.model.AVProjector;
-import avprojector.controller.AVProjectorTableModel;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import com.apple.eawt.Application;
-import java.security.MessageDigest;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.DefaultCellEditor;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JTable;
 import pjLink.PJLinkC1;
 
 /**
@@ -28,19 +22,30 @@ import pjLink.PJLinkC1;
  */
 public class AVProjectorController {
 
+    private static long                     sCheckStatusTime = 300000;  // 5 minutes between projector pings
     private static Semaphore                sProjTableModelMutex;
+    private static Timer                    sCheckAllTimer;
+    private static boolean                  sInitialized = false;
     public static ArrayList<AVProjector>    sProjList;
     public static String                    sFilepath = "/Users/Long/Desktop/projList.txt";
     public static int                       sColumnCount = AVProjectorTableModel.columnNames.length;
     public static AVProjectorTableModel     sProjTableModel;
 
+
     public static void Initialize()
     {
-        PJLinkC1.IntializeCommands();
-        Parse();
-        sProjTableModelMutex = new Semaphore(1, true);
-        sProjTableModel = new AVProjectorTableModel( GetModelData() );
-        CheckAllStatus();
+        if( !sInitialized )
+        {
+            sInitialized = true;
+            PJLinkC1.IntializeCommands();
+            Parse();
+            sProjTableModelMutex = new Semaphore(1, true);
+            sProjTableModel = new AVProjectorTableModel( GetModelData() );
+            sCheckAllTimer = new Timer();
+            sCheckAllTimer.scheduleAtFixedRate(new CheckProjectorStatusTask(), sCheckStatusTime, sCheckStatusTime);
+
+            CheckAllStatus();
+        }
     }
 
     public static void SetProjModelValueAt( String data, int row, int column )
@@ -81,6 +86,8 @@ public class AVProjectorController {
 
         for( int i = 0; i < sProjList.size(); i++ )
         {
+            SetProjModelValueAt("Loading", i, 1);
+            SetProjModelValueAt("Loading", i, 2);
             sProjList.get(i).CheckPower(i, 1);
             sProjList.get(i).CheckInput(i, 2);
 
@@ -95,6 +102,22 @@ public class AVProjectorController {
         System.out.println("testing");
         sProjList.get(row).TurnOnOff(row, column);
         return;
+    }
+
+}
+
+final class CheckProjectorStatusTask extends TimerTask
+{
+
+    public CheckProjectorStatusTask()
+    {
+
+    }
+
+    @Override
+    public void run()
+    {
+        AVProjectorController.CheckAllStatus();
     }
 
 }
