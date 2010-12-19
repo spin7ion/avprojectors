@@ -8,7 +8,6 @@ package avprojector.controller;
 import avprojector.model.AVProjectorParser;
 import avprojector.model.AVProjector;
 import java.util.ArrayList;
-import com.apple.eawt.Application;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Semaphore;
@@ -92,8 +91,6 @@ public class AVProjectorController {
             sProjList.get(i).CheckInput(i, 2);
 
         }
-        Application app = Application.getApplication();
-        app.requestUserAttention( true );
 
     }
 
