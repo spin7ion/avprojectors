@@ -13,9 +13,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.math.BigInteger;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.net.SocketAddress;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -45,7 +43,7 @@ public class PJLinkQueryThread extends Thread
 
     AVProjector mProj;
 
-    public PJLinkQueryThread( AVProjector proj, PJLinkC1.CommandType commandType, String query, String password, InetAddress projIP, int port, int row, int column, int waitTime )
+    PJLinkQueryThread( AVProjector proj, PJLinkC1.CommandType commandType, String query, String password, InetAddress projIP, int port, int row, int column, int waitTime )
     {
         mCommandType= commandType;
         mQuery      = query;
@@ -64,6 +62,7 @@ public class PJLinkQueryThread extends Thread
     @Override
     public void run()
     {
+        // if theres a wait time, put this thread to sleep for that time
         if( mWaitTime != 0 )
         {
             try
@@ -98,12 +97,12 @@ public class PJLinkQueryThread extends Thread
             {
                 case Power:
                 {
-                    mResponse = (String)PJLinkC1.PowerStatus.get(response);
+                    mResponse = (String)PJLinkC1.sPowerStatus.get(response);
                     mProj.SetPowerState(response);
 
                     if( mResponse == null )
                     {
-                        mResponse = (String)PJLinkC1.PowerErrorCodes.get(response);
+                        mResponse = (String)PJLinkC1.sPowerErrorCodes.get(response);
                     }
 
                     if( mResponse == null )
@@ -114,11 +113,11 @@ public class PJLinkQueryThread extends Thread
                 }
                 case Input:
                 {
-                    mResponse = (String)PJLinkC1.InputStatus.get(response);
+                    mResponse = (String)PJLinkC1.sInputStatus.get(response);
 
                     if( mResponse == null )
                     {
-                        mResponse = (String)PJLinkC1.InputErrorCodes.get(response);
+                        mResponse = (String)PJLinkC1.sInputErrorCodes.get(response);
                     }
 
                     if( mResponse == null )

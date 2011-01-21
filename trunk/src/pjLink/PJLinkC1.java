@@ -6,20 +6,11 @@
 package pjLink;
 
 import avprojector.model.AVProjector;
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.math.BigInteger;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.net.SocketAddress;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -33,9 +24,21 @@ public class PJLinkC1 {
         Input
     }
 
+    enum PowerCommands
+    {
+        Off,
+        On,
+        Status
+    }
+
+    enum InputCommands
+    {
+        Video,
+        InputA,
+        Status
+    }
+
     private static final int    CLASS_NUMBER    = 1;
-    private static final int    TIMEOUT         = 3000;
-    private static final int    PasswordIndex   = 2;
     private static final String MD5             = "MD5";
     protected static boolean    Initialized     = false;
 
@@ -45,14 +48,25 @@ public class PJLinkC1 {
 
     protected static final int WAIT_TIME           = 1500;
 
-    static HashMap PowerStatus;
-    static HashMap PowerCommands;
-    static HashMap PowerErrorCodes;
-    
-    static HashMap InputStatus;
-    static HashMap InputCommands;
-    static HashMap InputErrorCodes;
+    // translation from projector status number to human readable information
+    static HashMap sPowerStatus;
 
+    // translation from human command to projector number command
+    static HashMap sPowerCommands;
+
+    // translation from projector error to human readable error
+    static HashMap sPowerErrorCodes;
+
+    // translation from projector status number to human readable information
+    static HashMap sInputStatus;
+
+    // translation from human command to projector number command
+    static HashMap sInputCommands;
+
+    // translation from projector error to human readable error
+    static HashMap sInputErrorCodes;
+
+    // put all commands into the hashmaps
     public static void IntializeCommands()
     {
 
@@ -61,79 +75,87 @@ public class PJLinkC1 {
             return;
         }
         //Power commands/status
-        PowerStatus = new HashMap();
-        PowerStatus.put( "0", "Off");
-        PowerStatus.put( "1", "On");
-        PowerStatus.put( "2", "Cooling");
-        PowerStatus.put( "3", "Warmup");
+        sPowerStatus = new HashMap();
+        sPowerStatus.put( "0", "Off");
+        sPowerStatus.put( "1", "On");
+        sPowerStatus.put( "2", "Cooling");
+        sPowerStatus.put( "3", "Warmup");
 
-        PowerCommands = new HashMap();
-        PowerCommands.put( "Off", "0");
-        PowerCommands.put( "On", "1");
-        PowerCommands.put( "Status", "?");
+        sPowerCommands = new HashMap();
+        sPowerCommands.put( PowerCommands.Off, "0");
+        sPowerCommands.put( PowerCommands.On, "1");
+        sPowerCommands.put( PowerCommands.Status, "?");
 
-        PowerErrorCodes = new HashMap();
-        PowerErrorCodes.put( "OK"  , "OK");
-        PowerErrorCodes.put( "ERR2", "Parameter out of range");
-        PowerErrorCodes.put( "ERR3", "Projector not on");
-        PowerErrorCodes.put( "ERR4", "Projector error");
+        sPowerErrorCodes = new HashMap();
+        sPowerErrorCodes.put( "OK"  , "OK");
+        sPowerErrorCodes.put( "ERR2", "Parameter out of range");
+        sPowerErrorCodes.put( "ERR3", "Projector not on");
+        sPowerErrorCodes.put( "ERR4", "Projector error");
 
         //Input
-        InputStatus = new HashMap();
-        InputStatus.put( "21", "Video");
-        InputStatus.put( "22", "S-Video");
-        InputStatus.put( "31", "Input A");
-        InputStatus.put( "32", "Input B");
-        InputStatus.put( "33", "Input C");
-        InputStatus.put( "34", "Input D");
-        InputStatus.put( "35", "Input E");
-        InputStatus.put( "36", "Input F");
-        InputStatus.put( "51", "Network");
+        sInputStatus = new HashMap();
+        sInputStatus.put( "21", "Video");
+        sInputStatus.put( "22", "S-Video");
+        sInputStatus.put( "31", "Input A");
+        sInputStatus.put( "32", "Input B");
+        sInputStatus.put( "33", "Input C");
+        sInputStatus.put( "34", "Input D");
+        sInputStatus.put( "35", "Input E");
+        sInputStatus.put( "36", "Input F");
+        sInputStatus.put( "51", "Network");
 
-        InputCommands = new HashMap();
-        InputCommands.put( "Video",   "21");
-        InputCommands.put( "Input A", "31");
-        InputCommands.put( "Status", "?" );
+        sInputCommands = new HashMap();
+        sInputCommands.put( InputCommands.Video,   "21");
+        sInputCommands.put( InputCommands.InputA, "31");
+        sInputCommands.put( InputCommands.Status, "?" );
 
-        InputErrorCodes = new HashMap();
-        InputErrorCodes.put("ERR2", "Non-existent input");
-        InputErrorCodes.put("ERR3", "Projector not on");
-        InputErrorCodes.put("ERR4", "Projector error");
+        sInputErrorCodes = new HashMap();
+        sInputErrorCodes.put("ERR2", "Non-existent input");
+        sInputErrorCodes.put("ERR3", "Projector not on");
+        sInputErrorCodes.put("ERR4", "Projector error");
 
         Initialized = true;
     }
 
+    // takes a password and the random string and returns the digest
     public static String GetPasswordDigest( String password, String randomString )
     {
+        // initialize the return value
         String pwDigest = "";
+
         try
         {
+            // get the MD5 digest
             MessageDigest digest = MessageDigest.getInstance( MD5 );
 
+            // append the password to the random string
             String passwordString = randomString + password;
 
+            // get the digest in bytes and format it as hexidecimal then convert it to a string
             digest.update(passwordString.getBytes());
             byte[] bytes = digest.digest();
             BigInteger bi = new BigInteger(1, bytes);
             pwDigest = String.format("%0" + (bytes.length << 1) + "x", bi);
         }
 
+        // couldn't find the MD5 algorithm
         catch (NoSuchAlgorithmException e)
         {
-            //assert
+            e.printStackTrace();
             pwDigest = "NO SUCH ALGORITHM";
         }
+
 
         return pwDigest;
 
     }
 
+    // sends a query to the projector requesting the information on the power status
     public static void CheckPower( AVProjector proj, InetAddress projIP, int pjLinkPort, String password, int row, int column )
     {
 
-        String query = CreateQuery( CLASS_NUMBER, POWER, (String)PowerCommands.get("Status") );
-
-        //connect to the server
+        // create the query object
+        String query = CreateQuery( CLASS_NUMBER, POWER, (String)sPowerCommands.get(PowerCommands.Status) );
 
         PJLinkQueryThread pjQuery = new PJLinkQueryThread( proj, CommandType.Power, query, password, projIP, pjLinkPort, row, column, 0 );
         pjQuery.start();
@@ -141,12 +163,11 @@ public class PJLinkC1 {
         return;
     }
 
+    // sends a query requesting info on power after a specified time
     public static void CheckPower( AVProjector proj, InetAddress projIP, int pjLinkPort, String password, int row, int column, int waitTime )
     {
 
-        String query = CreateQuery( CLASS_NUMBER, POWER, (String)PowerCommands.get("Status") );
-
-        //connect to the server
+        String query = CreateQuery( CLASS_NUMBER, POWER, (String)sPowerCommands.get(PowerCommands.Status) );
 
         PJLinkQueryThread pjQuery = new PJLinkQueryThread( proj, CommandType.Power, query, password, projIP, pjLinkPort, row, column, waitTime );
         pjQuery.start();
@@ -154,11 +175,10 @@ public class PJLinkC1 {
         return;
     }
 
+    // sends a query to the projector requesting the information on the input status
     public static void CheckInput( AVProjector proj, InetAddress projIP, int pjLinkPort, String password, int row, int column )
     {
-        String query = CreateQuery( CLASS_NUMBER, INPUT, (String)InputCommands.get("Status") );
-
-        //connect to the server
+        String query = CreateQuery( CLASS_NUMBER, INPUT, (String)sInputCommands.get(InputCommands.Status) );
 
         PJLinkQueryThread pjQuery = new PJLinkQueryThread( proj, CommandType.Input, query, password, projIP, pjLinkPort, row, column, 0 );
         pjQuery.start();
@@ -166,11 +186,10 @@ public class PJLinkC1 {
         return;
     }
 
+    // sends a query requesting info on input after a specified time
     public static void CheckInput( AVProjector proj, InetAddress projIP, int pjLinkPort, String password, int row, int column, int waitTime )
     {
-        String query = CreateQuery( CLASS_NUMBER, INPUT, (String)InputCommands.get("Status") );
-
-        //connect to the server
+        String query = CreateQuery( CLASS_NUMBER, INPUT, (String)sInputCommands.get(InputCommands.Status) );
 
         PJLinkQueryThread pjQuery = new PJLinkQueryThread( proj, CommandType.Input, query, password, projIP, pjLinkPort, row, column, waitTime );
         pjQuery.start();
@@ -178,23 +197,26 @@ public class PJLinkC1 {
         return;
     }
 
+    // sends a command to the projector to turn on, uses the row and column to update the table cell in the view
     public static void TurnOn( AVProjector proj, InetAddress projIP, int pjLinkPort, String password, int row, int column )
     {
-        System.out.println("Turning on. " + projIP);
-        String query = CreateQuery( CLASS_NUMBER, POWER, (String)PowerCommands.get("On"));
+        String query = CreateQuery( CLASS_NUMBER, POWER, (String)sPowerCommands.get(PowerCommands.On));
         PJLinkQueryThread pjQuery = new PJLinkQueryThread( proj, CommandType.Input, query, password, projIP, pjLinkPort, row, column, 0 );
         pjQuery.start();
 
+        // check the power status after WAIT_TIME
         CheckPower( proj, projIP, pjLinkPort, password, row, column, WAIT_TIME );
         return;
     }
 
+    // sends a command to the projector to turn off, uses the row and column to update the table cell in the view
     public static void TurnOff( AVProjector proj, InetAddress projIP, int pjLinkPort, String password, int row, int column )
     {
-        String query = CreateQuery( CLASS_NUMBER, POWER, (String)PowerCommands.get("Off"));
+        String query = CreateQuery( CLASS_NUMBER, POWER, (String)sPowerCommands.get(PowerCommands.Off));
         PJLinkQueryThread pjQuery = new PJLinkQueryThread( proj, CommandType.Input, query, password, projIP, pjLinkPort, row, column, 0 );
         pjQuery.start();
 
+        // check the power status after WAIT_TIME
         CheckPower( proj, projIP, pjLinkPort, password, row, column, WAIT_TIME );
 
         return;
