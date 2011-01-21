@@ -12,6 +12,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.AbstractCellEditor;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -48,11 +51,23 @@ class ButtonCellRenderer extends AbstractCellEditor implements
                 {
                     int column = table.getColumnModel().getColumnIndexAtX(e.getX());
                     int row    = e.getY()/table.getRowHeight();
-                    if( column == 1 )
+
+                    // go to the projector webserver
+                    if ( column == 0 )
                     {
-                        System.out.println("row" + row + "column" + column);
+                        try {
+                            AVProjectorController.GoToWebServer(row, column);
+                        } catch (IOException ex) {
+                            Logger.getLogger(ButtonCellRenderer.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }
+
+                    // turn the projector on/off
+                    else if(column == 1)
+                    {
                         AVProjectorController.TurnOnOff(row, column);
                     }
+
                 }
             }
         });

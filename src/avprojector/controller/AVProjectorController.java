@@ -7,6 +7,7 @@ package avprojector.controller;
 
 import avprojector.model.AVProjectorParser;
 import avprojector.model.AVProjector;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -21,12 +22,13 @@ import pjLink.PJLinkC1;
  */
 public class AVProjectorController {
 
+    public static boolean                   sDEBUG = true;
     private static long                     sCheckStatusTime = 300000;  // 5 minutes between projector pings
     private static Semaphore                sProjTableModelMutex;
     private static Timer                    sCheckAllTimer;
     private static boolean                  sInitialized = false;
     public static ArrayList<AVProjector>    sProjList;
-    public static String                    sFilepath = "/Users/Long/Desktop/projList.txt";
+    public static String                    sFilepath = "./projList.txt";
     public static int                       sColumnCount = AVProjectorTableModel.columnNames.length;
     public static AVProjectorTableModel     sProjTableModel;
 
@@ -96,8 +98,13 @@ public class AVProjectorController {
 
     public static void TurnOnOff( int row, int column )
     {
-        System.out.println("testing");
         sProjList.get(row).TurnOnOff(row, column);
+        return;
+    }
+
+    public static void GoToWebServer( int row, int column ) throws IOException
+    {
+        sProjList.get(row).GoToWebServer(row, column);
         return;
     }
 

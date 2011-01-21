@@ -211,20 +211,25 @@ public class AVProjector
 
     public void TurnOnOff( int row, int column )
     {
-        System.out.println("turnonoff" + mProjName );
+        
         if(this.mPower == PowerState.on)
         {
-            System.out.println("off");
+            
             PJLinkC1.TurnOff(this, mIPAddress, pjLinkPort, defaultPJLinkPW, row, column );
             return;
         }
         else if( this.mPower == PowerState.off )
         {
-            System.out.println("on");
+            
             PJLinkC1.TurnOn(this, mIPAddress, pjLinkPort, defaultPJLinkPW, row, column );
             return;
         }
 
+    }
+
+    public void GoToWebServer( int row, int column ) throws IOException
+    {
+        java.awt.Desktop.getDesktop().browse(java.net.URI.create(this.mHostName));
     }
 
     public String CheckInput( )
